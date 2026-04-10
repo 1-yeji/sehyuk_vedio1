@@ -19,8 +19,6 @@
       --radius: 22px;
     }
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -271,6 +269,7 @@
         <div class="stat"><div class="label">평균 별점</div><div class="value" id="avgRating">0.0</div></div>
         <div class="stat"><div class="label">동기화 상태</div><div class="value" style="font-size:18px"><span class="badge" id="syncBadge">연결 대기</span></div></div>
       </div>
+    </div>
 
     <div class="card tabs-card">
       <div class="tabs" id="tabs"></div>
@@ -753,7 +752,7 @@
       try {
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
-        configNoticeEl.classList.add('hidden');
+        if (configNoticeEl) configNoticeEl.classList.add('hidden');
         subscribeSharedRows();
       } catch (error) {
         console.error(error);
