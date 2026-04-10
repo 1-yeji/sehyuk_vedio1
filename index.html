@@ -19,6 +19,8 @@
       --radius: 22px;
     }
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -371,9 +373,9 @@
   appId: "1:112124952676:web:ad53f7416d275ca65d9f71"
 };
 
-    // Firebase 콘솔 > Project settings > Your apps에서 보이는 App ID와는 별개로,
+  // Firebase 콘솔 > Project settings > Your apps에서 보이는 App ID와는 별개로,
     // 앱별 데이터 구분용 문자열이야. projectId와 같게 써도 무방해.
-    const APP_ID = 'PASTE_SHARED_APP_ID';
+    const APP_ID = 'video-db-c3ce2';
 
     let db = null;
     let unsubscribe = null;
