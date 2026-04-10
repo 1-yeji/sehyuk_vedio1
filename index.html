@@ -418,6 +418,11 @@
       syncBadgeEl.style.color = ok ? '#065f46' : '#991b1b';
     }
 
+    function showError(message) {
+      console.error(message);
+      alert(message);
+    }
+
     function formatTimeValue(value) {
       if (!value) return '';
       if (typeof value === 'string') return value;
@@ -584,21 +589,25 @@
     }
 
     async function addSharedRow() {
-      if (!db) return alert('Firebase 설정을 먼저 끝내줘.');
+      if (!db) return showError('Firebase 연결이 아직 안 됐어.');
       const workspaceId = getWorkspaceId();
       saveWorkspaceId(workspaceId);
-      await addDoc(collection(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows`), {
-        id: createId(),
-        tab: activeTab,
-        name: '',
-        comment: '',
-        rating: '0',
-        date: '',
-        shooter: '',
-        link: '',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      try {
+        await addDoc(collection(db, `artifacts/${APP_ID}/public/data/workspaces/${workspaceId}/rows`), {
+          id: createId(),
+          tab: activeTab,
+          name: '',
+          comment: '',
+          rating: '0',
+          date: '',
+          shooter: '',
+          link: '',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      } catch (error) {
+        showError(`새 항목 추가 실패: ${error.message}`);
+      }
     }
 
     async function updateSharedRow(id, key, value) {
@@ -606,10 +615,14 @@
       const workspaceId = getWorkspaceId();
       const found = sharedRows.find(row => row.id === id);
       if (!found?.docId) return;
-      await updateDoc(doc(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows/${found.docId}`), {
-        [key]: value,
-        updatedAt: serverTimestamp()
-      });
+      try {
+        await updateDoc(doc(db, `artifacts/${APP_ID}/public/data/workspaces/${workspaceId}/rows/${found.docId}`), {
+          [key]: value,
+          updatedAt: serverTimestamp()
+        });
+      } catch (error) {
+        showError(`수정 실패: ${error.message}`);
+      }
     }
 
     async function deleteSharedRow(id) {
@@ -617,7 +630,11 @@
       const workspaceId = getWorkspaceId();
       const found = sharedRows.find(row => row.id === id);
       if (!found?.docId) return;
-      await deleteDoc(doc(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows/${found.docId}`));
+      try {
+        await deleteDoc(doc(db, `artifacts/${APP_ID}/public/data/workspaces/${workspaceId}/rows/${found.docId}`));
+      } catch (error) {
+        showError(`삭제 실패: ${error.message}`);
+      }
     }
 
     async function exportJson() {
@@ -640,7 +657,7 @@
       }
       const workspaceId = getWorkspaceId();
       saveWorkspaceId(workspaceId);
-      const colRef = collection(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows`);
+      const colRef = collection(db, `artifacts/${APP_ID}/public/data/workspaces/${workspaceId}/rows`);
       const batch = writeBatch(db);
       rows.forEach(row => {
         const newRef = doc(colRef);
@@ -666,7 +683,7 @@
       saveWorkspaceId(workspaceId);
       if (unsubscribe) unsubscribe();
       setSyncStatus('연결 중...', false);
-      const qRef = query(collection(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows`), orderBy('updatedAt', 'desc'));
+      const qRef = query(collection(db, `artifacts/${APP_ID}/public/data/workspaces/${workspaceId}/rows`), orderBy('updatedAt', 'desc'));
       unsubscribe = onSnapshot(qRef, snapshot => {
         sharedRows = snapshot.docs.map(docSnap => ({
           docId: docSnap.id,
@@ -738,7 +755,7 @@
         await importJson(file);
       } catch (err) {
         console.error(err);
-        alert('불러오기 중 오류가 났어. JSON 형식을 확인해줘.');
+        alert(`불러오기 중 오류가 났어: ${err.message}`);
       }
       e.target.value = '';
     });
