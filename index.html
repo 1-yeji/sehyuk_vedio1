@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>영상 소스 정리</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --border: #e8eaf2;
+      --text: #171923;
+      --muted: #6b7280;
+      --primary: #111827;
+      --primary-2: #1f2937;
+      --chip: #f1f3f9;
+      --danger: #dc2626;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .header {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+    h1 { margin: 0; font-size: 30px; }
+    .sub { margin-top: 6px; color: var(--muted); font-size: 14px; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    button, .file-label {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 16px;
+      padding: 11px 15px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .danger {
+      color: var(--danger);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .stat .label { color: var(--muted); font-size: 13px; }
+    .stat .value { margin-top: 8px; font-size: 26px; font-weight: 700; }
+
+    .tabs-card, .rows-wrap { margin-top: 18px; }
+    .tabs-card { padding: 18px; }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      border: 1px solid transparent;
+      background: var(--chip);
+      padding: 10px 14px;
+      border-radius: 14px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-weight: 600;
+      color: #374151;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .tab.active {
+      background: var(--primary);
+      color: white;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .search-box {
+      position: relative;
+      width: min(460px, 100%);
+      flex: 1 1 320px;
+    }
+    .search-box input {
+      width: 100%;
+      padding-left: 42px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.45;
+    }
+    .filter-toggle-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filters {
+      margin-top: 14px;
+      background: #fafbff;
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 7px;
+      color: #374151;
+      font-weight: 600;
+    }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 11px 12px;
+      font: inherit;
+      background: white;
+      color: var(--text);
+    }
+    textarea { resize: vertical; min-height: 96px; }
+    .rows-wrap { display: grid; gap: 14px; }
+    .row-card { padding: 18px; }
+    .row-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.5fr 180px 180px 180px auto;
+      gap: 14px;
+      align-items: start;
+    }
+    .row-bottom {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 14px;
+      align-items: end;
+    }
+    .meta { color: var(--muted); font-size: 13px; }
+    .link-btn {
+      white-space: nowrap;
+    }
+    .stars {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-height: 48px;
+      background: white;
+    }
+    .star {
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      opacity: 0.35;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+    .star.active { opacity: 1; }
+    .star:hover { transform: scale(1.08); }
+    .muted-box {
+      padding: 36px 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .top-note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: #fff8e7;
+      border: 1px solid #f4df9c;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .small { font-size: 12px; color: var(--muted); }
+    .hidden { display: none !important; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #ecfdf5;
+      color: #065f46;
+    }
+    @media (max-width: 1200px) {
+      .row-grid { grid-template-columns: 1fr 1fr; }
+      .row-bottom { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      .stats, .filters { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .wrap { padding: 14px; }
+      .header, .tabs-card, .row-card { padding: 14px; }
+      .stats, .filters, .row-grid { grid-template-columns: 1fr; }
+      .row-bottom { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card header">
+      <div class="header-top">
+        <div>
+          <h1>영상 소스 정리</h1>
+          <div class="sub">공유 저장형 버전 · Firebase Firestore 실시간 동기화</div>
+        </div>
+        <div class="button-row">
+          <button class="primary" id="addRowBtn">+ 새 항목 추가</button>
+          <button id="exportBtn">백업 내보내기</button>
+          <label class="file-label">불러오기<input id="importInput" class="hidden" type="file" accept="application/json" /></label>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="label">현재 탭 항목 수</div><div class="value" id="totalCount">0</div></div>
+        <div class="stat"><div class="label">검색 결과</div><div class="value" id="filteredCount">0</div></div>
+        <div class="stat"><div class="label">평균 별점</div><div class="value" id="avgRating">0.0</div></div>
+        <div class="stat"><div class="label">동기화 상태</div><div class="value" style="font-size:18px"><span class="badge" id="syncBadge">연결 대기</span></div></div>
+      </div>
+
+      <div class="top-note" id="configNotice">
+        <strong>처음 한 번만 설정 필요:</strong> 이 파일의 <code>firebaseConfig</code>와 <code>APP_ID</code>를 네 Firebase 프로젝트 값으로 바꿔야 실시간 공유 저장이 작동해. 아래 함께 준 설정 가이드대로 5~10분이면 연결 가능해.
+      </div>
+    </div>
+
+    <div class="card tabs-card">
+      <div class="tabs" id="tabs"></div>
+      <div class="controls">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input id="searchInput" placeholder="영상 이름, 코멘트, 촬영자, 링크 검색" />
+        </div>
+        <div class="filter-toggle-row">
+          <button id="toggleFiltersBtn">필터 숨기기</button>
+          <button id="resetFiltersBtn">초기화</button>
+        </div>
+      </div>
+      <div class="filters" id="filtersBox">
+        <div class="field">
+          <label>촬영자</label>
+          <select id="shooterFilter"></select>
+        </div>
+        <div class="field">
+          <label>별점</label>
+          <select id="ratingFilter">
+            <option value="all">전체</option>
+            <option value="5">5점 이상</option>
+            <option value="4">4점 이상</option>
+            <option value="3">3점 이상</option>
+            <option value="2">2점 이상</option>
+            <option value="1">1점 이상</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>정렬</label>
+          <select id="sortBy">
+            <option value="updatedAt_desc">최근 수정순</option>
+            <option value="updatedAt_asc">오래된 수정순</option>
+            <option value="date_desc">날짜 최신순</option>
+            <option value="date_asc">날짜 오래된순</option>
+            <option value="rating_desc">별점 높은순</option>
+            <option value="rating_asc">별점 낮은순</option>
+            <option value="name_asc">이름 가나다순</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>공유용 작업공간 ID</label>
+          <input id="workspaceId" placeholder="예: dragonpony-team" />
+          <div class="small" style="margin-top:6px">같은 ID를 쓰는 사람끼리 같은 데이터를 봐.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rows-wrap" id="rowsWrap"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      doc,
+      updateDoc,
+      deleteDoc,
+      onSnapshot,
+      writeBatch,
+      getDocs,
+      serverTimestamp,
+      query,
+      orderBy
+    } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+    const TAB_NAMES = [
+      'POP UP',
+      '모스부호',
+      '꼬리를먹는뱀',
+      'Pity Punk',
+      'Not Out',
+      'Waste',
+      '이타심',
+      'On Air',
+      '지구소년',
+      'Rock star',
+      'Earthquake',
+      '썸레드',
+      '아맘다',
+      'Zombie',
+      '손금'
+    ];
+
+    // 여기를 네 Firebase 프로젝트 값으로 바꿔줘.
+    const firebaseConfig = {
+      apiKey: 'PASTE_YOUR_API_KEY',
+      authDomain: 'PASTE_YOUR_AUTH_DOMAIN',
+      projectId: 'PASTE_YOUR_PROJECT_ID',
+      storageBucket: 'PASTE_YOUR_STORAGE_BUCKET',
+      messagingSenderId: 'PASTE_YOUR_MESSAGING_SENDER_ID',
+      appId: 'PASTE_YOUR_APP_ID'
+    };
+
+    // Firebase 콘솔 > Project settings > Your apps에서 보이는 App ID와는 별개로,
+    // 앱별 데이터 구분용 문자열이야. projectId와 같게 써도 무방해.
+    const APP_ID = 'PASTE_SHARED_APP_ID';
+
+    let db = null;
+    let unsubscribe = null;
+    let sharedRows = [];
+    let activeTab = TAB_NAMES[0];
+    let search = '';
+    let ratingFilter = 'all';
+    let shooterFilter = 'all';
+    let sortBy = 'updatedAt_desc';
+    let showFilters = true;
+
+    const tabsEl = document.getElementById('tabs');
+    const rowsWrap = document.getElementById('rowsWrap');
+    const searchInput = document.getElementById('searchInput');
+    const ratingFilterEl = document.getElementById('ratingFilter');
+    const shooterFilterEl = document.getElementById('shooterFilter');
+    const sortByEl = document.getElementById('sortBy');
+    const workspaceIdEl = document.getElementById('workspaceId');
+    const totalCountEl = document.getElementById('totalCount');
+    const filteredCountEl = document.getElementById('filteredCount');
+    const avgRatingEl = document.getElementById('avgRating');
+    const syncBadgeEl = document.getElementById('syncBadge');
+    const filtersBoxEl = document.getElementById('filtersBox');
+    const configNoticeEl = document.getElementById('configNotice');
+
+    function createId() {
+      return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    }
+
+    function getWorkspaceId() {
+      const local = localStorage.getItem('video-shared-workspace-id');
+      return workspaceIdEl.value.trim() || local || 'default-workspace';
+    }
+
+    function saveWorkspaceId(value) {
+      localStorage.setItem('video-shared-workspace-id', value);
+    }
+
+    function isConfigured() {
+      return !Object.values(firebaseConfig).some(v => String(v).includes('PASTE_')) && !String(APP_ID).includes('PASTE_');
+    }
+
+    function setSyncStatus(text, ok = false) {
+      syncBadgeEl.textContent = text;
+      syncBadgeEl.style.background = ok ? '#ecfdf5' : '#fef2f2';
+      syncBadgeEl.style.color = ok ? '#065f46' : '#991b1b';
+    }
+
+    function formatTimeValue(value) {
+      if (!value) return '';
+      if (typeof value === 'string') return value;
+      if (value?.toDate) return value.toDate().toISOString();
+      return '';
+    }
+
+    function starsHTML(value) {
+      const current = Number(value || 0);
+      return [1,2,3,4,5].map(n => `<span class="star ${n <= current ? 'active' : ''}" data-star="${n}">★</span>`).join('');
+    }
+
+    function countFilled(row) {
+      return [row.name, row.comment, row.date, row.shooter, row.link].filter(Boolean).length + (Number(row.rating) > 0 ? 1 : 0);
+    }
+
+    function getRowsForTab(tab) {
+      return sharedRows.filter(row => row.tab === tab);
+    }
+
+    function renderTabs() {
+      tabsEl.innerHTML = TAB_NAMES.map(tab => {
+        const count = getRowsForTab(tab).length;
+        return `<button class="tab ${tab === activeTab ? 'active' : ''}" data-tab="${escapeHtml(tab)}">${escapeHtml(tab)} <span>${count}</span></button>`;
+      }).join('');
+
+      tabsEl.querySelectorAll('.tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTab = btn.dataset.tab;
+          renderAll();
+        });
+      });
+    }
+
+    function getFilteredRows() {
+      const q = search.trim().toLowerCase();
+      const rows = getRowsForTab(activeTab).filter(row => {
+        const matchesSearch = !q || [row.name, row.comment, row.shooter, row.link, row.date].join(' ').toLowerCase().includes(q);
+        const matchesRating = ratingFilter === 'all' || Number(row.rating || 0) >= Number(ratingFilter);
+        const matchesShooter = shooterFilter === 'all' || row.shooter === shooterFilter;
+        return matchesSearch && matchesRating && matchesShooter;
+      });
+
+      rows.sort((a, b) => {
+        switch (sortBy) {
+          case 'date_desc': return (b.date || '').localeCompare(a.date || '');
+          case 'date_asc': return (a.date || '').localeCompare(b.date || '');
+          case 'rating_desc': return Number(b.rating || 0) - Number(a.rating || 0);
+          case 'rating_asc': return Number(a.rating || 0) - Number(b.rating || 0);
+          case 'name_asc': return (a.name || '').localeCompare(b.name || '');
+          case 'updatedAt_asc': return formatTimeValue(a.updatedAt).localeCompare(formatTimeValue(b.updatedAt));
+          case 'updatedAt_desc':
+          default:
+            return formatTimeValue(b.updatedAt).localeCompare(formatTimeValue(a.updatedAt));
+        }
+      });
+
+      return rows;
+    }
+
+    function renderShooterOptions() {
+      const currentRows = getRowsForTab(activeTab);
+      const shooters = [...new Set(currentRows.map(row => (row.shooter || '').trim()).filter(Boolean))];
+      shooterFilterEl.innerHTML = `<option value="all">전체</option>` + shooters.map(name => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`).join('');
+      shooterFilterEl.value = shooters.includes(shooterFilter) || shooterFilter === 'all' ? shooterFilter : 'all';
+      if (!shooters.includes(shooterFilter)) shooterFilter = 'all';
+    }
+
+    function renderStats(filteredRows) {
+      const currentRows = getRowsForTab(activeTab);
+      totalCountEl.textContent = currentRows.length;
+      filteredCountEl.textContent = filteredRows.length;
+      avgRatingEl.textContent = currentRows.length ? (currentRows.reduce((sum, row) => sum + Number(row.rating || 0), 0) / currentRows.length).toFixed(1) : '0.0';
+    }
+
+    function renderRows() {
+      const filteredRows = getFilteredRows();
+      renderStats(filteredRows);
+      if (filteredRows.length === 0) {
+        rowsWrap.innerHTML = `<div class="card muted-box"><div style="font-size:20px;font-weight:700;color:#111827;margin-bottom:8px">아직 항목이 없어요</div><div>새 항목을 추가하거나 검색/필터를 초기화해보세요.</div></div>`;
+        return;
+      }
+
+      rowsWrap.innerHTML = filteredRows.map(row => `
+        <div class="card row-card" data-id="${row.id}">
+          <div class="row-grid">
+            <div class="field">
+              <label>영상 이름</label>
+              <input data-field="name" value="${escapeAttr(row.name || '')}" placeholder="예: 후기형 숏폼 레퍼런스" />
+            </div>
+            <div class="field">
+              <label>코멘트</label>
+              <textarea data-field="comment" placeholder="후킹 방식, 톤, 편집 포인트 등">${escapeHtml(row.comment || '')}</textarea>
+            </div>
+            <div class="field">
+              <label>별점</label>
+              <div class="stars" data-field="rating">${starsHTML(row.rating)}</div>
+              <div class="small" style="margin-top:6px">${Number(row.rating || 0)} / 5</div>
+            </div>
+            <div class="field">
+              <label>날짜</label>
+              <input data-field="date" type="date" value="${escapeAttr(row.date || '')}" />
+            </div>
+            <div class="field">
+              <label>촬영자</label>
+              <input data-field="shooter" value="${escapeAttr(row.shooter || '')}" placeholder="예: 예지 / 외주팀" />
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button class="danger delete-btn">삭제</button>
+            </div>
+          </div>
+          <div class="row-bottom">
+            <div class="field">
+              <label>영상 링크</label>
+              <input data-field="link" value="${escapeAttr(row.link || '')}" placeholder="https://..." />
+            </div>
+            <div class="meta">입력 완성도 <strong style="color:#111827">${countFilled(row)}/6</strong></div>
+            <div>
+              ${row.link ? `<a class="link-btn" href="${escapeAttr(row.link)}" target="_blank" rel="noreferrer">링크 열기</a>` : `<button class="link-btn" disabled>링크 없음</button>`}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      bindRowEvents();
+    }
+
+    function renderAll() {
+      renderTabs();
+      renderShooterOptions();
+      renderRows();
+      filtersBoxEl.classList.toggle('hidden', !showFilters);
+      document.getElementById('toggleFiltersBtn').textContent = showFilters ? '필터 숨기기' : '필터 보기';
+    }
+
+    function bindRowEvents() {
+      rowsWrap.querySelectorAll('.row-card').forEach(card => {
+        const id = card.dataset.id;
+
+        card.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
+          const handler = async () => {
+            await updateSharedRow(id, el.dataset.field, el.value);
+          };
+          el.addEventListener('change', handler);
+          el.addEventListener('blur', handler);
+        });
+
+        card.querySelectorAll('.star').forEach(star => {
+          star.addEventListener('click', async () => {
+            const value = Number(star.dataset.star);
+            const row = sharedRows.find(item => item.id === id);
+            const next = Number(row?.rating || 0) === value ? 0 : value;
+            await updateSharedRow(id, 'rating', String(next));
+          });
+        });
+
+        const deleteBtn = card.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', async () => {
+          if (!confirm('이 항목을 삭제할까?')) return;
+          await deleteSharedRow(id);
+        });
+      });
+    }
+
+    async function addSharedRow() {
+      if (!db) return alert('Firebase 설정을 먼저 끝내줘.');
+      const workspaceId = getWorkspaceId();
+      saveWorkspaceId(workspaceId);
+      await addDoc(collection(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows`), {
+        id: createId(),
+        tab: activeTab,
+        name: '',
+        comment: '',
+        rating: '0',
+        date: '',
+        shooter: '',
+        link: '',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    async function updateSharedRow(id, key, value) {
+      if (!db) return;
+      const workspaceId = getWorkspaceId();
+      const found = sharedRows.find(row => row.id === id);
+      if (!found?.docId) return;
+      await updateDoc(doc(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows/${found.docId}`), {
+        [key]: value,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    async function deleteSharedRow(id) {
+      if (!db) return;
+      const workspaceId = getWorkspaceId();
+      const found = sharedRows.find(row => row.id === id);
+      if (!found?.docId) return;
+      await deleteDoc(doc(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows/${found.docId}`));
+    }
+
+    async function exportJson() {
+      const blob = new Blob([JSON.stringify(sharedRows.map(({ docId, ...rest }) => rest), null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'video-source-organizer-shared-backup.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function importJson(file) {
+      if (!db) return alert('Firebase 설정을 먼저 끝내줘.');
+      const text = await file.text();
+      const rows = JSON.parse(text);
+      if (!Array.isArray(rows)) {
+        alert('JSON 배열 형식이 아니야.');
+        return;
+      }
+      const workspaceId = getWorkspaceId();
+      saveWorkspaceId(workspaceId);
+      const colRef = collection(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows`);
+      const batch = writeBatch(db);
+      rows.forEach(row => {
+        const newRef = doc(colRef);
+        batch.set(newRef, {
+          id: row.id || createId(),
+          tab: row.tab || activeTab,
+          name: row.name || '',
+          comment: row.comment || '',
+          rating: row.rating || '0',
+          date: row.date || '',
+          shooter: row.shooter || '',
+          link: row.link || '',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      });
+      await batch.commit();
+    }
+
+    function subscribeSharedRows() {
+      if (!db) return;
+      const workspaceId = getWorkspaceId();
+      saveWorkspaceId(workspaceId);
+      if (unsubscribe) unsubscribe();
+      setSyncStatus('연결 중...', false);
+      const qRef = query(collection(db, `artifacts/${APP_ID}/public/data/${workspaceId}/rows`), orderBy('updatedAt', 'desc'));
+      unsubscribe = onSnapshot(qRef, snapshot => {
+        sharedRows = snapshot.docs.map(docSnap => ({
+          docId: docSnap.id,
+          ...docSnap.data()
+        }));
+        renderAll();
+        setSyncStatus('실시간 연결됨', true);
+      }, error => {
+        console.error(error);
+        setSyncStatus('권한/설정 확인 필요', false);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str);
+    }
+
+    document.getElementById('addRowBtn').addEventListener('click', addSharedRow);
+    document.getElementById('exportBtn').addEventListener('click', exportJson);
+    document.getElementById('toggleFiltersBtn').addEventListener('click', () => {
+      showFilters = !showFilters;
+      renderAll();
+    });
+    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+      search = '';
+      ratingFilter = 'all';
+      shooterFilter = 'all';
+      sortBy = 'updatedAt_desc';
+      searchInput.value = '';
+      ratingFilterEl.value = 'all';
+      shooterFilterEl.value = 'all';
+      sortByEl.value = 'updatedAt_desc';
+      renderAll();
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      search = e.target.value;
+      renderAll();
+    });
+    ratingFilterEl.addEventListener('change', (e) => {
+      ratingFilter = e.target.value;
+      renderAll();
+    });
+    shooterFilterEl.addEventListener('change', (e) => {
+      shooterFilter = e.target.value;
+      renderAll();
+    });
+    sortByEl.addEventListener('change', (e) => {
+      sortBy = e.target.value;
+      renderAll();
+    });
+    workspaceIdEl.addEventListener('change', () => {
+      subscribeSharedRows();
+    });
+
+    document.getElementById('importInput').addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        await importJson(file);
+      } catch (err) {
+        console.error(err);
+        alert('불러오기 중 오류가 났어. JSON 형식을 확인해줘.');
+      }
+      e.target.value = '';
+    });
+
+    const savedWorkspace = localStorage.getItem('video-shared-workspace-id');
+    if (savedWorkspace) workspaceIdEl.value = savedWorkspace;
+
+    renderAll();
+
+    if (isConfigured()) {
+      try {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        configNoticeEl.classList.add('hidden');
+        subscribeSharedRows();
+      } catch (error) {
+        console.error(error);
+        setSyncStatus('초기화 실패', false);
+      }
+    } else {
+      setSyncStatus('설정 필요', false);
+    }
+  </script>
+</body>
+</html>
